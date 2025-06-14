@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدير المهام الأسبوعي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: #2c3e50;
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .top-section {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .days-section {
+            flex: 2;
+        }
+
+        .appointments-section {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .appointments-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .appointment-input {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .appointment-input select,
+        .appointment-input input {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .appointment-input select:focus,
+        .appointment-input input:focus {
+            outline: none;
+            border-color: #2c3e50;
+        }
+
+        .add-appointment-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-appointment-btn:hover {
+            background: #c82333;
+        }
+
+        .appointments-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .appointment-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .appointment-day {
+            font-weight: bold;
+            color: #dc3545;
+        }
+
+        .appointment-desc {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .delete-appointment {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .day-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .day-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #2c3e50;
+        }
+
+        .day-card.active {
+            background: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+
+        .day-card.has-appointment::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            background: #dc3545;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .day-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .day-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #27ae60;
+            color: white;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day-card.completed .day-check {
+            display: flex;
+        }
+
+        .task-count {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .day-panel {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .day-panel.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .close-btn {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #34495e;
+            transform: scale(1.05);
+        }
+
+        .task-input-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #e9ecef;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .task-input {
+            flex: 2;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .duration-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            min-width: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .task-input:focus,
+        .duration-input:focus {
+            outline: none;
+            border-color: #2c3e50;
+        }
+
+        .add-task-btn {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .add-task-btn:hover {
+            background: #34495e;
+            transform: translateY(-2px);
+        }
+
+        .tasks-list {
+            min-height: 200px;
+        }
+
+        .task-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            animation: taskSlide 0.3s ease-out;
+            cursor: move;
+            position: relative;
+        }
+
+        .task-item:before {
+            content: '⋮⋮';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ccc;
+            font-size: 1.2rem;
+            line-height: 0.5;
+        }
+
+        .task-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+            z-index: 1000;
+        }
+
+        .task-item.drag-over {
+            border-top: 3px solid #2c3e50;
+        }
+
+        @keyframes taskSlide {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .task-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            background: #f8f9fa;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 8px;
+            padding-right: 30px;
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .task-text.completed {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .delete-task-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .delete-task-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .task-duration {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-right: 33px;
+            font-style: italic;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .drag-instruction {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-align: center;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .top-section {
+                flex-direction: column;
+            }
+            
+            .days-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-row {
+                flex-direction: column;
+            }
+            
+            .task-input,
+            .duration-input {
+                min-width: 100%;
+            }
+            
+            .panel-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📅 مدير المهام الأسبوعي</h1>
+            <p>نظم مهامك ومواعيدك على مدار الأسبوع</p>
+        </header>
+
+        <main class="main-content">
+            <div class="top-section">
+                <div class="days-section">
+                    <div class="days-grid" id="daysGrid">
+                        <!-- سيتم إنشاء بطاقات الأيام هنا -->
+                    </div>
+                </div>
+
+                <div class="appointments-section">
+                    <h3 class="appointments-title">🔴 المواعيد المهمة</h3>
+                    <div class="appointment-input">
+                        <select id="appointmentDay">
+                            <option value="">اختر اليوم</option>
+                        </select>
+                        <input type="text" id="appointmentDesc" placeholder="وصف الموعد...">
+                        <button class="add-appointment-btn" onclick="addAppointment()">إضافة موعد</button>
+                    </div>
+                    <div class="appointments-list" id="appointmentsList">
+                        <!-- سيتم عرض المواعيد هنا -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="day-panel" id="dayPanel">
+                <div class="panel-header">
+                    <h2 class="panel-title" id="panelTitle">مهام اليوم</h2>
+                    <button class="close-btn" onclick="closePanel()">إغلاق</button>
+                </div>
+
+                <div class="task-input-section">
+                    <div class="input-row">
+                        <input type="text" class="task-input" id="taskInput" placeholder="أدخل مهمة جديدة...">
+                        <input type="number" class="duration-input" id="durationInput" placeholder="المدة (دقيقة)" min="1">
+                    </div>
+                    <button class="add-task-btn" onclick="addTask()">إضافة مهمة</button>
+                </div>
+
+                <div class="drag-instruction">💡 يمكنك سحب المهام لإعادة ترتيبها</div>
+
+                <div class="tasks-list" id="tasksList">
+                    <!-- سيتم عرض المهام هنا -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const daysOfWeek = [
+            'السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 
+            'الأربعاء', 'الخميس', 'الجمعة'
+        ];
+
+        let tasks = {};
+        let appointments = {};
+        let currentDay = null;
+        let draggedElement = null;
+
+        // تحميل البيانات عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            loadTasks();
+            loadAppointments();
+            setupAppointmentDays();
+            renderDays();
+            renderAppointments();
+        });
+
+        function loadTasks() {
+            try {
+                const savedTasks = localStorage.getItem('weeklyTasks');
+                if (savedTasks) {
+                    tasks = JSON.parse(savedTasks);
+                } else {
+                    // إنشاء بنية افتراضية للمهام
+                    daysOfWeek.forEach(day => {
+                        tasks[day] = [];
+                    });
+                }
+            } catch (error) {
+                console.error('خطأ في تحميل المهام:', error);
+                // إنشاء بنية افتراضية في حالة الخطأ
+                daysOfWeek.forEach(day => {
+                    tasks[day] = [];
+                });
+            }
+        }
+
+        function loadAppointments() {
+            try {
+                const savedAppointments = localStorage.getItem('weeklyAppointments');
+                if (savedAppointments) {
+                    appointments = JSON.parse(savedAppointments);
+                } else {
+                    // إنشاء بنية افتراضية للمواعيد
+                    daysOfWeek.forEach(day => {
+                        appointments[day] = [];
+                    });
+                }
+            } catch (error) {
+                console.error('خطأ في تحميل المواعيد:', error);
+                // إنشاء بنية افتراضية في حالة الخطأ
+                daysOfWeek.forEach(day => {
+                    appointments[day] = [];
+                });
+            }
+        }
+
+        function saveTasks() {
+            try {
+                localStorage.setItem('weeklyTasks', JSON.stringify(tasks));
+            } catch (error) {
+                console.error('خطأ في حفظ المهام:', error);
+                alert('حدث خطأ في حفظ المهام');
+            }
+        }
+
+        function saveAppointments() {
+            try {
+                localStorage.setItem('weeklyAppointments', JSON.stringify(appointments));
+            } catch (error) {
+                console.error('خطأ في حفظ المواعيد:', error);
+                alert('حدث خطأ في حفظ المواعيد');
+            }
+        }
+
+        function setupAppointmentDays() {
+            const select = document.getElementById('appointmentDay');
+            daysOfWeek.forEach(day => {
+                const option = document.createElement('option');
+                option.value = day;
+                option.textContent = day;
+                select.appendChild(option);
+            });
+        }
+
+        function renderDays() {
+            const daysGrid = document.getElementById('daysGrid');
+            daysGrid.innerHTML = '';
+
+            daysOfWeek.forEach(day => {
+                const dayTasks = tasks[day] || [];
+                const completedTasks = dayTasks.filter(task => task.completed).length;
+                const totalTasks = dayTasks.length;
+                const isCompleted = totalTasks > 0 && completedTasks === totalTasks;
+                const hasAppointment = appointments[day] && appointments[day].length > 0;
+
+                const dayCard = document.createElement('div');
+                dayCard.className = `day-card ${isCompleted ? 'completed' : ''} ${hasAppointment ? 'has-appointment' : ''}`;
+                dayCard.onclick = () => openDay(day);
+
+                dayCard.innerHTML = `
+                    <div class="day-name">
+                        <span>${day}</span>
+                        <div class="day-check">✓</div>
+                    </div>
+                    <div class="task-count">${totalTasks} مهمة</div>
+                `;
+
+                daysGrid.appendChild(dayCard);
+            });
+        }
+
+        function addAppointment() {
+            const daySelect = document.getElementById('appointmentDay');
+            const descInput = document.getElementById('appointmentDesc');
+            
+            const day = daySelect.value;
+            const description = descInput.value.trim();
+            
+            if (!day || !description) {
+                alert('يرجى اختيار اليوم وكتابة وصف الموعد');
+                return;
+            }
+
+            const appointment = {
+                id: Date.now(),
+                description: description,
+                createdAt: new Date().toLocaleString('ar-SA')
+            };
+
+            if (!appointments[day]) {
+                appointments[day] = [];
+            }
+
+            appointments[day].push(appointment);
+            
+            daySelect.value = '';
+            descInput.value = '';
+            
+            saveAppointments();
+            renderAppointments();
+            renderDays();
+        }
+
+        function deleteAppointment(day, appointmentId) {
+            if (appointments[day]) {
+                appointments[day] = appointments[day].filter(a => a.id !== appointmentId);
+                saveAppointments();
+                renderAppointments();
+                renderDays();
+            }
+        }
+
+        function renderAppointments() {
+            const appointmentsList = document.getElementById('appointmentsList');
+            let allAppointments = [];
+
+            daysOfWeek.forEach(day => {
+                if (appointments[day]) {
+                    appointments[day].forEach(appointment => {
+                        allAppointments.push({
+                            day: day,
+                            ...appointment
+                        });
+                    });
+                }
+            });
+
+            if (allAppointments.length === 0) {
+                appointmentsList.innerHTML = '<div style="text-align: center; padding: 20px; color: #6c757d;">لا توجد مواعيد</div>';
+                return;
+            }
+
+            appointmentsList.innerHTML = allAppointments.map(appointment => `
+                <div class="appointment-item">
+                    <button class="delete-appointment" onclick="deleteAppointment('${appointment.day}', ${appointment.id})">×</button>
+                    <div class="appointment-day">${appointment.day}</div>
+                    <div class="appointment-desc">${appointment.description}</div>
+                </div>
+            `).join('');
+        }
+
+        function openDay(day) {
+            currentDay = day;
+            
+            document.getElementById('panelTitle').textContent = `مهام ${day}`;
+            document.getElementById('dayPanel').classList.add('active');
+            
+            document.querySelectorAll('.day-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // البحث عن الكارت الصحيح
+            const dayCards = document.querySelectorAll('.day-card');
+            dayCards.forEach(card => {
+                if (card.querySelector('.day-name span').textContent === day) {
+                    card.classList.add('active');
+                }
+            });
+            
+            renderTasks();
+            
+            document.getElementById('taskInput').value = '';
+            document.getElementById('durationInput').value = '';
+        }
+
+        function closePanel() {
+            document.getElementById('dayPanel').classList.remove('active');
+            document.querySelectorAll('.day-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            currentDay = null;
+        }
+
+        function addTask() {
+            if (!currentDay) return;
+            
+            const taskInput = document.getElementById('taskInput');
+            const durationInput = document.getElementById('durationInput');
+            const taskText = taskInput.value.trim();
+            const duration = parseInt(durationInput.value) || 0;
+            
+            if (!taskText) {
+                alert('يرجى كتابة المهمة');
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                text: taskText,
+                duration: duration,
+                completed: false,
+                createdAt: new Date().toLocaleString('ar-SA'),
+                order: tasks[currentDay].length // إضافة ترتيب للمهمة
+            };
+
+            if (!tasks[currentDay]) {
+                tasks[currentDay] = [];
+            }
+
+            tasks[currentDay].push(task);
+            taskInput.value = '';
+            durationInput.value = '';
+            
+            saveTasks();
+            renderTasks();
+            renderDays();
+        }
+
+        function toggleTask(taskId) {
+            if (!currentDay) return;
+            
+            const task = tasks[currentDay].find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                saveTasks();
+                renderTasks();
+                renderDays();
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (!currentDay) return;
+            
+            if (confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
+                tasks[currentDay] = tasks[currentDay].filter(t => t.id !== taskId);
+                saveTasks();
+                renderTasks();
+                renderDays();
+            }
+        }
+
+        function renderTasks() {
+            if (!currentDay) return;
+            
+            const tasksList = document.getElementById('tasksList');
+            const dayTasks = tasks[currentDay] || [];
+
+            if (dayTasks.length === 0) {
+                tasksList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h3>لا توجد مهام</h3>
+                        <p>أضف مهمتك الأولى لهذا اليوم</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // ترتيب المهام حسب الترتيب المحفوظ
+            const sortedTasks = dayTasks.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+            tasksList.innerHTML = sortedTasks.map(task => `
+                <div class="task-item ${task.completed ? 'completed' : ''}" 
+                     draggable="true" 
+                     data-task-id="${task.id}"
+                     ondragstart="handleDragStart(event)"
+                     ondragend="handleDragEnd(event)"
+                     ondragover="handleDragOver(event)"
+                     ondrop="handleDrop(event)">
+                    <div class="task-header">
+                        <input type="checkbox" class="task-checkbox" 
+                               ${task.completed ? 'checked' : ''} 
+                               onchange="toggleTask(${task.id})">
+                        <span class="task-text ${task.completed ? 'completed' : ''}">${task.text}</span>
+                        <button class="delete-task-btn" onclick="deleteTask(${task.id})">حذف</button>
+                    </div>
+                    ${task.duration > 0 ? `<div class="task-duration">مدة المهمة: ${task.duration} دقيقة</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // وظائف السحب والإفلات
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.outerHTML);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            // إزالة كلاس drag-over من جميع العناصر
+            document.querySelectorAll('.task-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            
+            // إزالة كلاس drag-over من جميع العناصر
+            document.querySelectorAll('.task-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+            
+            // إضافة كلاس drag-over للعنصر الحالي
+            if (e.target.closest('.task-item') && e.target.closest('.task-item') !== draggedElement) {
+                e.target.closest('.task-item').classList.add('drag-over');
+            }
+            
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+
+            const dropTarget = e.target.closest('.task-item');
+            if (draggedElement !== dropTarget && dropTarget) {
+                const draggedTaskId = parseInt(draggedElement.getAttribute('data-task-id'));
+                const dropTaskId = parseInt(dropTarget.getAttribute('data-task-id'));
+                
+                reorderTasks(draggedTaskId, dropTaskId);
+            }
+
+            return false;
+        }
+
+        function reorderTasks(draggedTaskId, dropTaskId) {
+            if (!currentDay || !tasks[currentDay]) return;
+
+            const dayTasks = tasks[currentDay];
+            const draggedIndex = dayTasks.findIndex(task => task.id === draggedTaskId);
+            const dropIndex = dayTasks.findIndex(task => task.id === dropTaskId);
+
+            if (draggedIndex === -1 || dropIndex === -1) return;
+
+            // إزالة المهمة المسحوبة من موقعها الأصلي
+            const draggedTask = dayTasks.splice(draggedIndex, 1)[0];
+            
+            // إدراج المهمة في الموقع الجديد
+            dayTasks.splice(dropIndex, 0, draggedTask);
+            
+            // تحديث ترتيب جميع المهام
+            dayTasks.forEach((task, index) => {
+                task.order = index;
+            });
+
+            saveTasks();
+            renderTasks();
+        }
+
+        // إضافة مهمة بالضغط على Enter
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // إضافة موعد بالضغط على Enter
+        document.getElementById('appointmentDesc').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addAppointment();
+            }
+        });
+
+        // تأكد من حفظ البيانات عند إغلاق الصفحة
+        window.addEventListener('beforeunload', function(e) {
+            // حفظ البيانات قبل إغلاق الصفحة
+            if (Object.keys(tasks).length > 0) {
+                saveTasks();
+            }
+            if (Object.keys(appointments).length > 0) {
+                saveAppointments();
+            }
+        });
+
+        // حفظ البيانات كل 30 ثانية تلقائياً
+        setInterval(function() {
+            saveTasks();
+            saveAppointments();
+        }, 30000);
+    </script>
+</body>
+</html>
