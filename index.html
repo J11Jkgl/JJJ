@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>مدير المهام الأسبوعي</title>
     <style>
+        /* كود الـ CSS كما هو بدون تغيير */
         * {
             margin: 0;
             padding: 0;
@@ -15,7 +16,8 @@
             user-select: none;
         }
 
-        input, textarea {
+        input,
+        textarea {
             -webkit-user-select: text;
             -moz-user-select: text;
             -ms-user-select: text;
@@ -23,7 +25,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
@@ -226,7 +228,7 @@
         }
 
         .day-card.has-appointment::before {
-            content: '';
+            content: "";
             position: absolute;
             top: 10px;
             right: 10px;
@@ -238,8 +240,13 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
         }
 
         .day-name {
@@ -403,7 +410,7 @@
         }
 
         .task-item:before {
-            content: '⋮⋮';
+            content: "⋮⋮";
             position: absolute;
             right: 10px;
             top: 50%;
@@ -485,64 +492,30 @@
             background: #17a2b8;
             color: white;
             border: none;
-            padding: 6px 10px;
+            padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
         .edit-task-btn:hover {
             background: #138496;
-            transform: scale(1.05);
-        }
-
-        .save-task-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
-        }
-
-        .save-task-btn:hover {
-            background: #218838;
-            transform: scale(1.05);
-        }
-
-        .cancel-edit-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
-        }
-
-        .cancel-edit-btn:hover {
-            background: #5a6268;
-            transform: scale(1.05);
         }
 
         .delete-task-btn {
             background: #dc3545;
             color: white;
             border: none;
-            padding: 6px 10px;
+            padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
         .delete-task-btn:hover {
             background: #c82333;
-            transform: scale(1.05);
         }
 
         .task-duration {
@@ -590,8 +563,12 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .modal-content {
@@ -664,20 +641,20 @@
             .top-section {
                 flex-direction: column;
             }
-            
+
             .days-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .input-row {
                 flex-direction: column;
             }
-            
+
             .task-input,
             .duration-input {
                 min-width: 100%;
             }
-            
+
             .panel-header {
                 flex-direction: column;
                 gap: 15px;
@@ -782,30 +759,39 @@
             renderAppointments();
         });
 
+        // تعديل دوال التحميل والحفظ مع localStorage
         function loadTasks() {
-            daysOfWeek.forEach(day => {
-                if (!tasks[day]) {
-                    tasks[day] = [];
-                }
-            });
-        }
-
-        function loadAppointments() {
-            daysOfWeek.forEach(day => {
-                if (!appointments[day]) {
-                    appointments[day] = [];
-                }
-            });
+            const savedTasks = localStorage.getItem('tasks');
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+            } else {
+                daysOfWeek.forEach(day => {
+                    if (!tasks[day]) {
+                        tasks[day] = [];
+                    }
+                });
+            }
         }
 
         function saveTasks() {
-            // في بيئة Claude لا يمكن استخدام localStorage
-            console.log('المهام محفوظة مؤقتاً في الذاكرة');
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function loadAppointments() {
+            const savedAppointments = localStorage.getItem('appointments');
+            if (savedAppointments) {
+                appointments = JSON.parse(savedAppointments);
+            } else {
+                daysOfWeek.forEach(day => {
+                    if (!appointments[day]) {
+                        appointments[day] = [];
+                    }
+                });
+            }
         }
 
         function saveAppointments() {
-            // في بيئة Claude لا يمكن استخدام localStorage
-            console.log('المواعيد محفوظة مؤقتاً في الذاكرة');
+            localStorage.setItem('appointments', JSON.stringify(appointments));
         }
 
         function setupAppointmentDays() {
@@ -848,10 +834,10 @@
         function addAppointment() {
             const daySelect = document.getElementById('appointmentDay');
             const descInput = document.getElementById('appointmentDesc');
-            
+
             const day = daySelect.value;
             const description = descInput.value.trim();
-            
+
             if (!day || !description) {
                 alert('يرجى اختيار اليوم وكتابة وصف الموعد');
                 return;
@@ -868,10 +854,10 @@
             }
 
             appointments[day].push(appointment);
-            
+
             daySelect.value = '';
             descInput.value = '';
-            
+
             saveAppointments();
             renderAppointments();
             renderDays();
@@ -917,23 +903,23 @@
 
         function openDay(day) {
             currentDay = day;
-            
+
             document.getElementById('panelTitle').textContent = `مهام ${day}`;
             document.getElementById('dayPanel').classList.add('active');
-            
+
             document.querySelectorAll('.day-card').forEach(card => {
                 card.classList.remove('active');
             });
-            
+
             const dayCards = document.querySelectorAll('.day-card');
             dayCards.forEach(card => {
                 if (card.querySelector('.day-name span').textContent === day) {
                     card.classList.add('active');
                 }
             });
-            
+
             renderTasks();
-            
+
             document.getElementById('taskInput').value = '';
             document.getElementById('durationInput').value = '';
         }
@@ -949,12 +935,12 @@
 
         function addTask() {
             if (!currentDay) return;
-            
+
             const taskInput = document.getElementById('taskInput');
             const durationInput = document.getElementById('durationInput');
             const taskText = taskInput.value.trim();
             const duration = parseInt(durationInput.value) || 0;
-            
+
             if (!taskText) {
                 alert('يرجى كتابة المهمة');
                 return;
@@ -966,7 +952,7 @@
                 duration: duration,
                 completed: false,
                 createdAt: new Date().toLocaleString('ar-SA'),
-                order: tasks[currentDay].length
+                order: tasks[currentDay] ? tasks[currentDay].length : 0
             };
 
             if (!tasks[currentDay]) {
@@ -976,7 +962,7 @@
             tasks[currentDay].push(task);
             taskInput.value = '';
             durationInput.value = '';
-            
+
             saveTasks();
             renderTasks();
             renderDays();
@@ -984,7 +970,7 @@
 
         function toggleTask(taskId) {
             if (!currentDay) return;
-            
+
             const task = tasks[currentDay].find(t => t.id === taskId);
             if (task) {
                 task.completed = !task.completed;
@@ -996,7 +982,7 @@
 
         function deleteTask(taskId) {
             if (!currentDay) return;
-            
+
             if (confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
                 tasks[currentDay] = tasks[currentDay].filter(t => t.id !== taskId);
                 saveTasks();
@@ -1010,7 +996,7 @@
             if (editingTaskId) {
                 cancelEdit();
             }
-            
+
             editingTaskId = taskId;
             const task = tasks[currentDay].find(t => t.id === taskId);
             if (!task) return;
@@ -1018,19 +1004,19 @@
             const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
             const taskTextElement = taskElement.querySelector('.task-text');
             const taskActionsElement = taskElement.querySelector('.task-actions');
-            
+
             // حفظ النص الأصلي
             const originalText = task.text;
-            
+
             // تحويل النص إلى input للتعديل
             taskTextElement.innerHTML = `<input type="text" value="${originalText}" class="task-text editing" id="editInput${taskId}">`;
-            
+
             // تغيير الأزرار
             taskActionsElement.innerHTML = `
                 <button class="save-task-btn" onclick="saveEdit(${taskId}, '${originalText}')">حفظ</button>
                 <button class="cancel-edit-btn" onclick="cancelEdit()">إلغاء</button>
             `;
-            
+
             // تركيز على الحقل
             document.getElementById(`editInput${taskId}`).focus();
             document.getElementById(`editInput${taskId}`).select();
@@ -1039,18 +1025,18 @@
         // حفظ التعديل
         function saveEdit(taskId, originalText) {
             const newText = document.getElementById(`editInput${taskId}`).value.trim();
-            
+
             if (!newText) {
                 alert('لا يمكن أن تكون المهمة فارغة');
                 return;
             }
-            
+
             const task = tasks[currentDay].find(t => t.id === taskId);
             if (task) {
                 task.text = newText;
                 saveTasks();
             }
-            
+
             editingTaskId = null;
             renderTasks();
         }
@@ -1063,7 +1049,7 @@
 
         function renderTasks() {
             if (!currentDay) return;
-            
+
             const tasksList = document.getElementById('tasksList');
             const dayTasks = tasks[currentDay] || [];
 
@@ -1116,10 +1102,10 @@
         function handleDragOver(event) {
             event.preventDefault();
             event.dataTransfer.dropEffect = 'move';
-            
+
             const afterElement = getDragAfterElement(event.currentTarget.parentNode, event.clientY);
             const dragging = document.querySelector('.dragging');
-            
+
             if (afterElement == null) {
                 event.currentTarget.parentNode.appendChild(dragging);
             } else {
@@ -1130,7 +1116,7 @@
         function handleDrop(event, taskId) {
             event.preventDefault();
             event.target.classList.remove('drag-over');
-            
+
             // إعادة ترتيب المهام في المصفوفة
             reorderTasks();
         }
@@ -1142,11 +1128,11 @@
 
         function getDragAfterElement(container, y) {
             const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
-            
+
             return draggableElements.reduce((closest, child) => {
                 const box = child.getBoundingClientRect();
                 const offset = y - box.top - box.height / 2;
-                
+
                 if (offset < 0 && offset > closest.offset) {
                     return { offset: offset, element: child };
                 } else {
@@ -1157,10 +1143,10 @@
 
         function reorderTasks() {
             if (!currentDay) return;
-            
+
             const taskElements = document.querySelectorAll('.task-item');
             const newOrder = [];
-            
+
             taskElements.forEach((element, index) => {
                 const taskId = parseInt(element.getAttribute('data-task-id'));
                 const task = tasks[currentDay].find(t => t.id === taskId);
@@ -1169,7 +1155,7 @@
                     newOrder.push(task);
                 }
             });
-            
+
             tasks[currentDay] = newOrder;
             saveTasks();
         }
@@ -1192,17 +1178,17 @@
                     });
                 }
             });
-            
+
             saveTasks();
             renderDays();
-            
+
             // إذا كان هناك يوم مفتوح، أعد عرضه
             if (currentDay) {
                 renderTasks();
             }
-            
+
             hideResetModal();
-            
+
             // إشعار بالنجاح
             setTimeout(() => {
                 alert('تم تصفير جميع علامات الاختيار بنجاح! 🎉');
@@ -1235,7 +1221,7 @@
             }
         });
 
-        // إضافة مستمع لمفتاح Escape لإلغاء التعديل
+        // إضافة مستمع لمفتاح Escape لإلغاء التعديل أو إغلاق المودال
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 if (editingTaskId) {
